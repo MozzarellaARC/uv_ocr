@@ -133,5 +133,6 @@ dependencies = [
 ]
 
 [project.scripts]
-ocr = "main:main"
-ocr-table ="main:table"
+ocr = "main:run_text_cli"
+ocr-table = "main:run_table_cli"
+ocr-all = "main:run_all_cli"

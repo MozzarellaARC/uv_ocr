@@ -1,36 +1,71 @@
-# Initialize PaddleOCR instance
-def main ():
-    from paddleocr import PaddleOCR
+from argparse import ArgumentParser
+from pathlib import Path
+
+from paddleocr import PaddleOCR, TableRecognitionPipelineV2
+
+
+def run_text_ocr(image_path: Path, output_dir: Path) -> None:
     ocr = PaddleOCR(
         use_doc_orientation_classify=False,
         use_doc_unwarping=False,
-        use_textline_orientation=False)
+        use_textline_orientation=False,
+    )
 
-    # Run OCR inference on a sample image 
-    result = ocr.predict(
-        input="C:\\Users\\M\\Desktop\\hydrant_system\\ref\\Screenshot 2025-09-27 051026.png")
+    result = ocr.predict(input=str(image_path))
 
-    # Visualize the results and save the JSON results
     for res in result:
         res.print()
-        res.save_to_img("output")
-        res.save_to_json("output")
+        res.save_to_img(str(output_dir))
+        res.save_to_json(str(output_dir))
 
-def table():
-    from paddleocr import TableRecognitionPipelineV2
 
-    pipeline = TableRecognitionPipelineV2()
-    ocr = TableRecognitionPipelineV2(use_doc_orientation_classify=True) # 通过 use_doc_orientation_classify 指定是否使用文档方向分类模型
-    ocr = TableRecognitionPipelineV2(use_doc_unwarping=True) # 通过 use_doc_unwarping 指定是否使用文本图像矫正模块
-    ocr = TableRecognitionPipelineV2(device="gpu") # 通过 device 指定模型推理时使用 GPU
-    output = pipeline.predict(input="C:\\Users\\M\\Desktop\\hydrant_system\\ref\\Screenshot 2025-09-27 051026.png")
+def run_table_ocr(image_path: Path, output_dir: Path) -> None:
+    pipeline = TableRecognitionPipelineV2(
+        use_doc_orientation_classify=True,
+        use_doc_unwarping=True,
+    )
+
+    output = pipeline.predict(input=str(image_path))
     for res in output:
-        res.print() ## 打印预测的结构化输出
-        # res.save_to_img("./output/")
-        res.save_to_xlsx("./output/")
-        # res.save_to_html("./output/")
-        res.save_to_json("./output/")
+        res.print()
+        res.save_to_xlsx(str(output_dir))
+        res.save_to_json(str(output_dir))
+
+
+def _resolve_image_path(path_str: str) -> Path:
+    image_path = Path(path_str).expanduser().resolve()
+    if not image_path.exists():
+        raise FileNotFoundError(f"Image not found: {image_path}")
+    return image_path
+
+
+def _parse_image_path(description: str) -> Path:
+    parser = ArgumentParser(description=description)
+    parser.add_argument("image_path", help="Path to the image file to process.")
+    args = parser.parse_args()
+    return _resolve_image_path(args.image_path)
+
+
+def run_text_cli() -> None:
+    image_path = _parse_image_path("Run text OCR on an image using PaddleOCR.")
+    run_text_ocr(image_path, image_path.parent)
+
+
+def run_table_cli() -> None:
+    image_path = _parse_image_path("Run table recognition on an image using PaddleOCR.")
+    run_table_ocr(image_path, image_path.parent)
+
+
+def run_all_cli() -> None:
+    image_path = _parse_image_path(
+        "Run text OCR and table recognition on an image using PaddleOCR."
+    )
+    output_dir = image_path.parent
+    run_text_ocr(image_path, output_dir)
+    run_table_ocr(image_path, output_dir)
+
 
 if __name__ == "__main__":
-    main()
-    table()
+    run_text_cli()
+    run_table_cli()
+    run_all_cli()
