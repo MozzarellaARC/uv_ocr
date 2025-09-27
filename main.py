@@ -5,6 +5,7 @@ from paddleocr import PaddleOCR, TableRecognitionPipelineV2
 
 
 def run_text_ocr(image_path: Path, output_dir: Path) -> None:
+    output_dir.mkdir(parents=True, exist_ok=True)
     ocr = PaddleOCR(
         use_doc_orientation_classify=False,
         use_doc_unwarping=False,
@@ -20,6 +21,7 @@ def run_text_ocr(image_path: Path, output_dir: Path) -> None:
 
 
 def run_table_ocr(image_path: Path, output_dir: Path) -> None:
+    output_dir.mkdir(parents=True, exist_ok=True)
     pipeline = TableRecognitionPipelineV2(
         use_doc_orientation_classify=True,
         use_doc_unwarping=True,
@@ -48,21 +50,25 @@ def _parse_image_path(description: str) -> Path:
 
 def run_text_cli() -> None:
     image_path = _parse_image_path("Run text OCR on an image using PaddleOCR.")
-    run_text_ocr(image_path, image_path.parent)
+    run_text_ocr(image_path, get_output_dir(image_path))
 
 
 def run_table_cli() -> None:
     image_path = _parse_image_path("Run table recognition on an image using PaddleOCR.")
-    run_table_ocr(image_path, image_path.parent)
+    run_table_ocr(image_path, get_output_dir(image_path))
 
 
 def run_all_cli() -> None:
     image_path = _parse_image_path(
         "Run text OCR and table recognition on an image using PaddleOCR."
     )
-    output_dir = image_path.parent
+    output_dir = get_output_dir(image_path)
     run_text_ocr(image_path, output_dir)
     run_table_ocr(image_path, output_dir)
+
+
+def get_output_dir(image_path: Path) -> Path:
+    return image_path.parent / "output"
 
 
 if __name__ == "__main__":

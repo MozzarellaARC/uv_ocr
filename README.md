@@ -31,13 +31,13 @@ uv run ocr-all C:\path\to\your\image.png
 Each command will:
 
 - Print the structured predictions to the console.
-- Save the generated image/JSON/XLSX outputs in the same directory as the source image so results stay co-located with the input.
+- Save the generated image/JSON/XLSX outputs inside an `output` subdirectory that lives alongside your source image.
 
 If the provided path does not exist, the tool will exit with an error.
 
 ## Output
 
-`PaddleOCR` will create files such as `ocr_vis.png`, `ocr_result.json`, and table exports (for example `table.xlsx`) next to your source image. File names may vary depending on the PaddleOCR version.
+`PaddleOCR` will create files such as `ocr_vis.png`, `ocr_result.json`, and table exports (for example `table.xlsx`) inside `<image directory>/output/`. File names may vary depending on the PaddleOCR version. Each invocation writes into the `output` folder next to the image you provided, letting you keep results grouped per source image.
 
 ## Notes
 
